@@ -1,0 +1,99 @@
+_G.love = require "love"
+local Player = require "Player"
+local Game = require "Game"
+local Button = require "Buttons"
+
+local player = Player()
+local game = Game()
+local buttons = {
+    menu_state = {},
+    ended_state = {},
+    paused_state = {}
+}
+
+local buttonIcons = {
+    play = love.graphics.newImage("buttons/playbutton.png"),
+    exit = love.graphics.newImage("buttons/exitbutton.png"),
+    resume = love.graphics.newImage("buttons/resumebutton.png"),
+    menu = love.graphics.newImage("buttons/menubutton.png"),
+    restart = love.graphics.newImage("buttons/restartbutton.png")
+}
+
+local function center(type, length)
+    if type == "width" then
+        return (love.graphics.getWidth() - length) / 2
+    elseif type == "height" then
+        return (love.graphics.getHeight()- length) / 2
+    end
+end
+
+local function startNewGame()
+    game:changeGameState("running")
+    player.x, player.y = (love.graphics.getWidth() - QUAD_WIDTH)/2, (love.graphics.getHeight() - QUAD_HEIGHT)/2
+    player.animation.direction = "right"
+end
+
+local function changeGameState(state)
+    game:changeGameState(state)
+end
+
+function love.keypressed(key)
+    if key == "escape" then
+        if game.state.running then
+            game:changeGameState("paused")
+        elseif game.state.paused then
+            game:changeGameState("running")
+        end
+    end
+end
+
+function love.mousepressed(x, y, button, presses)
+    if not game.state.running then
+        if button == 1 then
+            if game.state.menu then
+                for index in pairs(buttons.menu_state) do
+                    buttons.menu_state[index]:checkPressed(x, y)
+                end
+            elseif game.state.paused then
+                for index in pairs(buttons.paused_state) do
+                    buttons.paused_state[index]:checkPressed(x, y)
+                end
+            end
+        end
+    end
+end
+
+function love.load()
+    buttons.menu_state.play = Button(buttonIcons.play, startNewGame, nil, center("width", buttonIcons.play:getWidth()), 300)
+    buttons.menu_state.exit = Button(buttonIcons.exit, love.event.quit, nil, center("width", buttonIcons.exit:getWidth()), 450)
+
+    buttons.paused_state.resume = Button(buttonIcons.resume, changeGameState, "running", center("width", buttonIcons.resume:getWidth()), 200)
+    buttons.paused_state.restart = Button(buttonIcons.restart, startNewGame, nil, center("width", buttonIcons.restart:getWidth()), 350)
+    buttons.paused_state.menu = Button(buttonIcons.menu, changeGameState, "menu", center("width", buttonIcons.menu:getWidth()), 500)
+end
+
+function love.update(dt)
+    if game.state.running then
+        love.mouse.setVisible(false)
+        player:move(dt)
+    else
+        love.mouse.setVisible(true)
+    end
+end
+
+function love.draw()
+    if game.state.menu then
+        for index in pairs(buttons.menu_state) do
+            buttons.menu_state[index]:draw()
+        end
+    elseif game.state.paused then
+        player:draw()
+        for index in pairs(buttons.paused_state) do
+            buttons.paused_state[index]:draw()
+        end
+    elseif game.state.running then
+        player:draw()
+    end
+
+end
+
