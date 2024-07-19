@@ -1,4 +1,4 @@
-#Cull Boy Game
+# Cull Boy Game
 Play as a cowboy to cull enemies with your trusty sidearm.
 
 ## References
