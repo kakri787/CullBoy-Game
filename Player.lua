@@ -5,6 +5,7 @@ function Player()
     _G.SPRITE_WIDTH, _G.SPRITE_HEIGHT = 800, 100
     _G.QUAD_WIDTH, _G.QUAD_HEIGHT = 100, SPRITE_HEIGHT
     local _x, _y = (love.graphics.getWidth() - QUAD_WIDTH)/2, (love.graphics.getHeight() - QUAD_HEIGHT)/2
+    local MAX_BULLET_DISTANCE = 650
 
     return {
         x = _x,
@@ -25,6 +26,19 @@ function Player()
         },
 
         move = function(self, dt)
+            if self.x < 0 + QUAD_WIDTH/2 then
+                self.x = QUAD_WIDTH/2
+            elseif self.x > love.graphics.getWidth() - QUAD_WIDTH/2 then
+                self.x = love.graphics.getWidth() - QUAD_WIDTH/2
+            end
+            if self.y < 0 then
+                self.y = 0
+            elseif self.y > love.graphics.getHeight() - QUAD_HEIGHT then
+                self.y = love.graphics.getHeight() - QUAD_HEIGHT
+            end
+            -- This prevents player from moving outside of screen
+
+            -- Below are the controls for player movement
             if love.keyboard.isDown("w") then
                 self.animation.idle = false
                 self.y = self.y - self.animation.speed
@@ -44,6 +58,21 @@ function Player()
                 self.x = self.x + self.animation.speed
             end
 
+            if not self.animation.idle then
+                self.animation.timer = self.animation.timer + dt
+                if self.animation.timer > 0.1 + dt then
+                    self.animation.timer = 0.1
+                    self.animation.frame = self.animation.frame + 1
+                    if self.animation.frame > self.animation.max_frames then
+                        self.animation.frame = 1
+                    end
+                end
+            end
+            -- When sprite is moving the timer increments by 1/60 of a frame
+            -- When timer exceeds the time difference between frames set the sprite to be its next frame
+            -- When all frames are exhausted reset sprite to its first frame and loop the animation set
+
+            -- Below are the controls for shooting
             if love.keyboard.isDown("up") then
                 self.animation.direction = "up"
                 self.animation.shooting = true
@@ -74,13 +103,13 @@ function Player()
 
             if self.animation.shooting then
                 if self.animation.fireRate == 0.22 then
-                    table.insert(self.animation.bullets, bullet(self.x, self.y))
+                    table.insert(self.animation.bullets, bullet(self.x, self.y, self.animation.direction))
                 end
                 -- When idle default the fireRate value is 0.22 therefore a bullet will be fired immediately when tapping or holding down arrow key
 
                 self.animation.fireRate = self.animation.fireRate + dt
                 if self.animation.fireRate > 0.2 + 12 * dt then
-                    table.insert(self.animation.bullets, bullet(self.x, self.y))
+                    table.insert(self.animation.bullets, bullet(self.x, self.y, self.animation.direction))
                     self.animation.fireRate = 0.2
                 end
                 -- When arrow keys are held down bullets will fire every 0.2 seconds which is equivalent to 12 times of dt
@@ -88,19 +117,12 @@ function Player()
                 -- fireRate is resetted to 0.2 after bullet is fired
             end
 
-            if not self.animation.idle then
-                self.animation.timer = self.animation.timer + dt
-                if self.animation.timer > 0.1 + dt then
-                    self.animation.timer = 0.1
-                    self.animation.frame = self.animation.frame + 1
-                    if self.animation.frame > self.animation.max_frames then
-                        self.animation.frame = 1
-                    end
+            for index, newBullet in pairs(self.animation.bullets) do
+                newBullet:move()
+                if newBullet.distance > MAX_BULLET_DISTANCE then
+                    table.remove(self.animation.bullets, index)
                 end
             end
-            -- When sprite is moving the timer increments by 1/60 of a frame
-            -- When timer exceeds the time difference between frames set the sprite to be its next frame
-            -- When all frames are exhausted reset sprite to its first frame and loop the animation set
         end,
 
         draw = function(self)
@@ -127,9 +149,7 @@ function Player()
                 newBullet:draw()
             end
         end
-        
     }
-
 end
 
 return Player
