@@ -119,7 +119,7 @@ function Player()
 
             for index, newBullet in pairs(self.animation.bullets) do
                 newBullet:move()
-                if newBullet.distance > MAX_BULLET_DISTANCE then
+                if newBullet.distance > MAX_BULLET_DISTANCE or newBullet.hitTarget == true then
                     table.remove(self.animation.bullets, index)
                 end
             end

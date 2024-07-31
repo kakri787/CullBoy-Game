@@ -3,7 +3,7 @@ local love = require "love"
 function Bullet(x, y, direction)
     local speed = 8
     local x_right, x_left, x_vertical = 41, -41, 53
-    local y_up, y_down, y_lateral = 23, 56, 13
+    local y_up, y_down, y_lateral = 23, 79, 13
     if direction == "right" then
         x = x + x_right
         y = y + x_vertical
@@ -23,12 +23,13 @@ function Bullet(x, y, direction)
         y = y,
         direction = direction,
         distance = 0,
+        hitTarget = false,
 
         draw = function(self)
             love.graphics.setColor(1, 1, 1)
             love.graphics.setPointSize(3)
             love.graphics.points(self.x, self.y)
-            
+
         end,
 
         move = function(self)

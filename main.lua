@@ -1,9 +1,15 @@
 _G.love = require "love"
 local Player = require "Player"
+local Enemy = require"Enemy"
 local Game = require "Game"
 local Button = require "Buttons"
 
+math.randomseed(os.time())
+-- Ensures that every instance of the game is different
+
 local player = Player()
+local enemies = {}
+local spawn_timer = 0.1
 local game = Game()
 local buttons = {
     menu_state = {},
@@ -29,8 +35,11 @@ end
 
 local function startNewGame()
     game:changeGameState("running")
-    player.x, player.y = (love.graphics.getWidth() - QUAD_WIDTH)/2, (love.graphics.getHeight() - QUAD_HEIGHT)/2
+    player.x, player.y = (love.graphics.getWidth() - QUAD_WIDTH)/2 + QUAD_WIDTH/2, (love.graphics.getHeight() - QUAD_HEIGHT)/2
     player.animation.direction = "right"
+    enemies = {}
+    player.animation.bullets = {}
+    -- Reset the player's position and direction, and also remove every enemy and bullet on the screen
 end
 
 local function changeGameState(state)
@@ -76,6 +85,27 @@ function love.update(dt)
     if game.state.running then
         love.mouse.setVisible(false)
         player:move(dt)
+
+        spawn_timer = spawn_timer + dt
+
+        if spawn_timer > 2 then
+            table.insert(enemies, Enemy(1))
+            spawn_timer = 0.1
+        end
+        -- An enemy will spawn every 2 seconds
+
+        for index, enemy in pairs(enemies) do
+            if not enemy:checkTouched(player.x, player.y+QUAD_HEIGHT/2) then
+                enemy:move(player.x, player.y+QUAD_HEIGHT/2)
+
+                for _, bullet in pairs(player.animation.bullets) do
+                    if enemy:checkHit(bullet.x, bullet.y) then
+                        bullet.hitTarget = true
+                        table.remove(enemies, index)
+                    end
+                end
+            end
+        end
     else
         love.mouse.setVisible(true)
     end
@@ -86,14 +116,18 @@ function love.draw()
         for index in pairs(buttons.menu_state) do
             buttons.menu_state[index]:draw()
         end
-    elseif game.state.paused then
+    elseif not game.state.menu then
         player:draw()
-        for index in pairs(buttons.paused_state) do
-            buttons.paused_state[index]:draw()
-        end
-    elseif game.state.running then
-        player:draw()
-    end
 
+        for i = 1, #enemies do
+            enemies[i]:draw()
+        end
+
+        if game.state.paused then
+            for index in pairs(buttons.paused_state) do
+                buttons.paused_state[index]:draw()
+            end
+        end
+    end
 end
 
