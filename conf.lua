@@ -4,5 +4,5 @@ function love.conf(t)
     t.window.icon = "icon/icon.png"
 
     t.window.width = 1280
-    t.window.height = 720
+    t.window.height = 900
 end

@@ -27,7 +27,7 @@ function Enemy(level)
         y = _y,
 
         checkTouched = function (self, player_x, player_y)
-            return math.sqrt((self.x - player_x)^2) <= QUAD_WIDTH/4 and math.sqrt((self.y - player_y) ^2) <= QUAD_HEIGHT/2
+            return math.sqrt((self.x - player_x)^2) <= QUAD_WIDTH/3 and math.sqrt((self.y - player_y) ^2) <= QUAD_HEIGHT/2
         end,
 
         checkHit = function(self, bullet_x, bullet_y)

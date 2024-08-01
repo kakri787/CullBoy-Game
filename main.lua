@@ -58,7 +58,6 @@ end
 
 function love.mousepressed(x, y, button, presses)
     if not game.state.running then
-        if button == 1 then
             if game.state.menu then
                 for index in pairs(buttons.menu_state) do
                     buttons.menu_state[index]:checkPressed(x, y)
@@ -67,8 +66,11 @@ function love.mousepressed(x, y, button, presses)
                 for index in pairs(buttons.paused_state) do
                     buttons.paused_state[index]:checkPressed(x, y)
                 end
+            else
+                for index in pairs(buttons.ended_state) do
+                    buttons.ended_state[index]:checkPressed(x, y)
+                end
             end
-        end
     end
 end
 
@@ -79,6 +81,9 @@ function love.load()
     buttons.paused_state.resume = Button(buttonIcons.resume, changeGameState, "running", center("width", buttonIcons.resume:getWidth()), 200)
     buttons.paused_state.restart = Button(buttonIcons.restart, startNewGame, nil, center("width", buttonIcons.restart:getWidth()), 350)
     buttons.paused_state.menu = Button(buttonIcons.menu, changeGameState, "menu", center("width", buttonIcons.menu:getWidth()), 500)
+
+    buttons.ended_state.restart = Button(buttonIcons.restart, startNewGame, nil, center("width", buttonIcons.restart:getWidth()), 300)
+    buttons.ended_state.exit = Button(buttonIcons.exit, love.event.quit, nil, center("width", buttonIcons.exit:getWidth()), 450)
 end
 
 function love.update(dt)
@@ -104,6 +109,8 @@ function love.update(dt)
                         table.remove(enemies, index)
                     end
                 end
+            else
+                changeGameState("ended")
             end
         end
     else
@@ -116,7 +123,7 @@ function love.draw()
         for index in pairs(buttons.menu_state) do
             buttons.menu_state[index]:draw()
         end
-    elseif not game.state.menu then
+    elseif not game.state.menu and not game.state.ended then
         player:draw()
 
         for i = 1, #enemies do
@@ -127,6 +134,10 @@ function love.draw()
             for index in pairs(buttons.paused_state) do
                 buttons.paused_state[index]:draw()
             end
+        end
+    elseif game.state.ended then
+        for index in pairs(buttons.ended_state) do
+            buttons.ended_state[index]:draw()
         end
     end
 end
