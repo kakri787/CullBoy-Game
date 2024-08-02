@@ -101,7 +101,7 @@ function love.update(dt)
 
         for index, enemy in pairs(enemies) do
             if not enemy:checkTouched(player.x, player.y+QUAD_HEIGHT/2) then
-                enemy:move(player.x, player.y+QUAD_HEIGHT/2)
+                enemy:move(player.x, player.y+QUAD_HEIGHT/2, dt)
 
                 for _, bullet in pairs(player.animation.bullets) do
                     if enemy:checkHit(bullet.x, bullet.y) then
