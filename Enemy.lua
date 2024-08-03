@@ -1,9 +1,9 @@
 local love = require "love"
 
-function Enemy(level)
+function Enemy(level, type, width, height, hp)
     local dice = math.random(1, 4)
     local _x, _y
-    local _radius = QUAD_WIDTH
+    local _radius = width/8
 
     if dice == 1 then
         _x = math.random(_radius, love.graphics.getWidth())
@@ -21,10 +21,15 @@ function Enemy(level)
     -- Randomizing direction that enemy will spawn from offscreen
 
     return {
-        level = level or 1,
+        level = level,
         x = _x,
         y = _y,
-        sprite = love.graphics.newImage("entities/cactus.png"),
+        hp = hp,
+        sprite_width = width,
+        sprite_height = height,
+        quad_width = width/8,
+        quad_height = height,
+        sprite = type,
         animation = {
             direction = "left",
             max_frames = 8,
@@ -34,12 +39,12 @@ function Enemy(level)
 
         -- Note that collision detection arithmetic varies for different sprite models
         checkTouched = function (self, player_x, player_y)
-            return math.sqrt((self.x - player_x)^2) <= (QUAD_WIDTH - 40) and math.sqrt((self.y - player_y)^2) <= (QUAD_HEIGHT - 20)
+            return math.sqrt((self.x - player_x)^2) <= (self.quad_width/2) and math.sqrt((self.y - player_y)^2) <= (self.quad_height/2 + 20)
             -- Collision detection arithmetic between player model and cactus enemy
         end,
 
         checkHit = function(self, bullet_x, bullet_y)
-            return math.sqrt((self.x - bullet_x)^2) <= (QUAD_WIDTH/3 - 10) and math.sqrt((self.y - bullet_y)^2) <= (QUAD_HEIGHT/2 - 10)
+            return math.sqrt((self.x - bullet_x)^2) <= (self.quad_width/3 - self.quad_width/10) and math.sqrt((self.y - bullet_y)^2) <= (self.quad_height/2 - self.quad_height/10)
             -- Collision detection arithmetic between bullet and cactus enemy
         end,
 
@@ -74,16 +79,15 @@ function Enemy(level)
         draw = function(self)
             local quads = {}
             for i = 1, self.animation.max_frames do
-                quads[i] = love.graphics.newQuad(QUAD_WIDTH * (i-1), 0,  QUAD_WIDTH, QUAD_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT)
+                quads[i] = love.graphics.newQuad(self.quad_width * (i-1), 0,  self.quad_width, self.quad_height, self.sprite_width, self.sprite_height)
             end
             -- The loop segments spritesheet of 8 quads into individual quads into quads{} table
 
             if self.animation.direction == "left" then
-                love.graphics.draw(self.sprite, quads[self.animation.frame], self.x, self.y, 0, 1, 1, QUAD_WIDTH/2, QUAD_HEIGHT/2)
+                love.graphics.draw(self.sprite, quads[self.animation.frame], self.x, self.y, 0, 1, 1, self.quad_width/2, self.quad_height/2)
             elseif self.animation.direction == "right" then
-                love.graphics.draw(self.sprite, quads[self.animation.frame], self.x, self.y, 0, -1, 1, QUAD_WIDTH/2, QUAD_HEIGHT/2)
+                love.graphics.draw(self.sprite, quads[self.animation.frame], self.x, self.y, 0, -1, 1, self.quad_width/2, self.quad_height/2)
             end
-            
         end
     }
 end
