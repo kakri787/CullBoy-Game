@@ -9,6 +9,7 @@ math.randomseed(os.time())
 
 local player = Player()
 local enemies = {}
+local player_score = 0
 local spawn_timer = 0.1
 local game = Game()
 local buttons = {
@@ -39,6 +40,7 @@ local function startNewGame()
     player.animation.direction = "right"
     enemies = {}
     player.animation.bullets = {}
+    player_score = 0
     -- Reset the player's position and direction, and also remove every enemy and bullet on the screen
 end
 
@@ -107,6 +109,7 @@ function love.update(dt)
                     if enemy:checkHit(bullet.x, bullet.y) then
                         bullet.hitTarget = true
                         table.remove(enemies, index)
+                        player_score = player_score + 1
                     end
                 end
             else
@@ -125,6 +128,7 @@ function love.draw()
         end
     elseif not game.state.menu and not game.state.ended then
         player:draw()
+        love.graphics.printf(player_score, love.graphics.newFont(36), 0, 10, love.graphics.getWidth(), "center")
 
         for i = 1, #enemies do
             enemies[i]:draw()
@@ -136,6 +140,7 @@ function love.draw()
             end
         end
     elseif game.state.ended then
+        love.graphics.printf("Score: "..player_score, love.graphics.newFont(54), 0, 200, love.graphics.getWidth(), "center")
         for index in pairs(buttons.ended_state) do
             buttons.ended_state[index]:draw()
         end
