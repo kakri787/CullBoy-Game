@@ -11,7 +11,7 @@ local player = Player()
 local enemies = {}
 local entities = {
     cactus = love.graphics.newImage("entities/cactus.png"),
-    horse = love.graphics.newImage("entities/bighorse.png")
+    horse = love.graphics.newImage("entities/bighorse.png"),
 }
 local player_score = 0
 local spawn_timer = 0.1
@@ -44,7 +44,6 @@ local function startNewGame()
     player.x, player.y = (love.graphics.getWidth() - QUAD_WIDTH)/2 + QUAD_WIDTH/2, (love.graphics.getHeight() - QUAD_HEIGHT)/2
     player.animation.direction = "right"
     enemies = {}
-    bosses = {}
     player.animation.bullets = {}
     player_score = 0
     -- Reset the player's position and direction, and also remove every enemy and bullet on the screen
@@ -140,13 +139,11 @@ function love.draw()
             buttons.menu_state[index]:draw()
         end
     elseif not game.state.menu and not game.state.ended then
-        player:draw()
         for i = 1, #enemies do
             enemies[i]:draw()
         end
-
+        player:draw()
         love.graphics.printf(player_score, love.graphics.newFont(36), 0, 10, love.graphics.getWidth(), "center")
-
         if game.state.paused then
             for index in pairs(buttons.paused_state) do
                 buttons.paused_state[index]:draw()

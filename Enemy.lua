@@ -65,7 +65,7 @@ function Enemy(level, type, width, height, hp)
 
 
             self.animation.timer = self.animation.timer + dt
-            if self.animation.timer > 0.1 + dt then
+            if self.animation.timer > 0.1 + 5 * dt then
                 self.animation.timer = 0.1
                 self.animation.frame = self.animation.frame + 1
                 if self.animation.frame > self.animation.max_frames then
