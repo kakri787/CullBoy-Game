@@ -9,7 +9,6 @@ math.randomseed(os.time())
 
 local player = Player()
 local enemies = {}
-local bosses = {}
 local entities = {
     cactus = love.graphics.newImage("entities/cactus.png"),
     horse = love.graphics.newImage("entities/bighorse.png")
@@ -107,7 +106,7 @@ function love.update(dt)
             table.insert(enemies, Enemy(1, entities.cactus, 800, 100, 1))
             spawn_timer = 0.1
         elseif boss_timer > 5 then
-            table.insert(bosses, Enemy(1, entities.horse, 2400, 300, 10))
+            table.insert(enemies, Enemy(1, entities.horse, 2400, 300, 10))
             boss_timer = 0.1
         end
         -- An enemy will spawn every 2 seconds and a boss will spawn every 10 seconds
@@ -119,26 +118,10 @@ function love.update(dt)
                 for _, bullet in pairs(player.animation.bullets) do
                     if enemy:checkHit(bullet.x, bullet.y) then
                         bullet.hitTarget = true
-                        table.remove(enemies, index)
+                        enemy.hp = enemy.hp - 1
                         player_score = player_score + 1
-                    end
-                end
-            else
-                changeGameState("ended")
-            end
-        end
-
-        for index, boss in pairs(bosses) do
-            if not boss:checkTouched(player.x, player.y+QUAD_HEIGHT/2) then
-                boss:move(player.x, player.y+QUAD_HEIGHT/2, dt)
-
-                for _, bullet in pairs(player.animation.bullets) do
-                    if boss:checkHit(bullet.x, bullet.y) then
-                        bullet.hitTarget = true
-                        boss.hp = boss.hp - 1
-                        if boss.hp == 0 then
-                            table.remove(bosses, index)
-                            player_score = player_score + 10
+                        if enemy.hp == 0 then
+                            table.remove(enemies, index)
                         end
                     end
                 end
@@ -146,7 +129,6 @@ function love.update(dt)
                 changeGameState("ended")
             end
         end
-
     else
         love.mouse.setVisible(true)
     end
@@ -162,9 +144,7 @@ function love.draw()
         for i = 1, #enemies do
             enemies[i]:draw()
         end
-        for i = 1, #bosses do
-            bosses[i]:draw()
-        end
+
         love.graphics.printf(player_score, love.graphics.newFont(36), 0, 10, love.graphics.getWidth(), "center")
 
         if game.state.paused then
