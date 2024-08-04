@@ -14,6 +14,7 @@ local game = Game()
 local entities = {
     cactus = love.graphics.newImage("entities/cactus.png"),
     horse = love.graphics.newImage("entities/bighorse.png"),
+    background = love.graphics.newImage("entities/background.png")
 }
 local buttons = {
     menu_state = {},
@@ -136,6 +137,7 @@ function love.update(dt)
 end
 
 function love.draw()
+    love.graphics.draw(entities.background)
     if game.state.menu then
         for index in pairs(buttons.menu_state) do
             buttons.menu_state[index]:draw()
