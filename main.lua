@@ -11,10 +11,19 @@ local player = Player()
 local enemies = {}
 local game = Game()
 
+_G.audio = {
+    bullet_sound = love.audio.newSource("audio/bullet_sound.mp3", "static"),
+    background_music = love.audio.newSource("audio/background_music.mp3", "stream")
+}
+audio.bullet_sound:setVolume(0.3)
+audio.background_music:setVolume(0.3)
+
 local entities = {
     cactus = love.graphics.newImage("entities/cactus.png"),
     horse = love.graphics.newImage("entities/bighorse.png"),
-    background = love.graphics.newImage("entities/background.png")
+    background = love.graphics.newImage("entities/background.png"),
+    title = love.graphics.newImage("entities/title.png"),
+    game_over = love.graphics.newImage("entities/gameover.png")
 }
 local buttons = {
     menu_state = {},
@@ -85,15 +94,18 @@ function love.mousepressed(x, y, button, presses)
 end
 
 function love.load()
-    buttons.menu_state.play = Button(buttonIcons.play, startNewGame, nil, center("width", buttonIcons.play:getWidth()), 300)
-    buttons.menu_state.exit = Button(buttonIcons.exit, love.event.quit, nil, center("width", buttonIcons.exit:getWidth()), 450)
+    audio.background_music:setLooping(true)
+    audio.background_music:play()
+
+    buttons.menu_state.play = Button(buttonIcons.play, startNewGame, nil, center("width", buttonIcons.play:getWidth()), 400)
+    buttons.menu_state.exit = Button(buttonIcons.exit, love.event.quit, nil, center("width", buttonIcons.exit:getWidth()), 550)
 
     buttons.paused_state.resume = Button(buttonIcons.resume, changeGameState, "running", center("width", buttonIcons.resume:getWidth()), 200)
     buttons.paused_state.restart = Button(buttonIcons.restart, startNewGame, nil, center("width", buttonIcons.restart:getWidth()), 350)
     buttons.paused_state.menu = Button(buttonIcons.menu, changeGameState, "menu", center("width", buttonIcons.menu:getWidth()), 500)
 
-    buttons.ended_state.restart = Button(buttonIcons.restart, startNewGame, nil, center("width", buttonIcons.restart:getWidth()), 300)
-    buttons.ended_state.exit = Button(buttonIcons.exit, love.event.quit, nil, center("width", buttonIcons.exit:getWidth()), 450)
+    buttons.ended_state.restart = Button(buttonIcons.restart, startNewGame, nil, center("width", buttonIcons.restart:getWidth()), 425)
+    buttons.ended_state.exit = Button(buttonIcons.exit, love.event.quit, nil, center("width", buttonIcons.exit:getWidth()), 550)
 end
 
 function love.update(dt)
@@ -105,9 +117,9 @@ function love.update(dt)
         boss_timer = boss_timer + dt
 
         if spawn_timer > 1 then
-            table.insert(enemies, Enemy(level, entities.cactus, 800, 100, 1))
+            table.insert(enemies, Enemy(level/2, entities.cactus, 800, 100, 1))
             spawn_timer = 0.1
-        elseif boss_timer > 5 then
+        elseif boss_timer > 10 then
             table.insert(enemies, Enemy(level, entities.horse, 2400, 300, 10))
             boss_timer = 0.1
         end
@@ -139,6 +151,7 @@ end
 function love.draw()
     love.graphics.draw(entities.background)
     if game.state.menu then
+        love.graphics.draw(entities.title, center("width", entities.title:getWidth()), 200)
         for index in pairs(buttons.menu_state) do
             buttons.menu_state[index]:draw()
         end
@@ -147,14 +160,15 @@ function love.draw()
             enemies[i]:draw()
         end
         player:draw()
-        love.graphics.printf(player_score, love.graphics.newFont(36), 0, 10, love.graphics.getWidth(), "center")
+        love.graphics.printf(player_score, love.graphics.newFont("Minecraft.ttf", 36), 0, 10, love.graphics.getWidth(), "center")
         if game.state.paused then
             for index in pairs(buttons.paused_state) do
                 buttons.paused_state[index]:draw()
             end
         end
     elseif game.state.ended then
-        love.graphics.printf("Score: "..player_score, love.graphics.newFont(54), 0, 200, love.graphics.getWidth(), "center")
+        love.graphics.draw(entities.game_over, center("width", entities.game_over:getWidth()), 175)
+        love.graphics.printf("Score : "..player_score, love.graphics.newFont("Minecraft.ttf", 54), 0, 350, love.graphics.getWidth(), "center")
         for index in pairs(buttons.ended_state) do
             buttons.ended_state[index]:draw()
         end
