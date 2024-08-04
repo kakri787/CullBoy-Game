@@ -9,20 +9,17 @@ math.randomseed(os.time())
 
 local player = Player()
 local enemies = {}
+local game = Game()
+
 local entities = {
     cactus = love.graphics.newImage("entities/cactus.png"),
     horse = love.graphics.newImage("entities/bighorse.png"),
 }
-local player_score = 0
-local spawn_timer = 0.1
-local boss_timer = 0.1
-local game = Game()
 local buttons = {
     menu_state = {},
     ended_state = {},
     paused_state = {}
 }
-
 local buttonIcons = {
     play = love.graphics.newImage("buttons/playbutton.png"),
     exit = love.graphics.newImage("buttons/exitbutton.png"),
@@ -30,6 +27,11 @@ local buttonIcons = {
     menu = love.graphics.newImage("buttons/menubutton.png"),
     restart = love.graphics.newImage("buttons/restartbutton.png")
 }
+
+local player_score = 0
+local spawn_timer = 0.1
+local boss_timer = 0.1
+local level = 1
 
 local function center(type, length)
     if type == "width" then
@@ -46,7 +48,7 @@ local function startNewGame()
     enemies = {}
     player.animation.bullets = {}
     player_score = 0
-    -- Reset the player's position and direction, and also remove every enemy and bullet on the screen
+    -- Reset to default
 end
 
 local function changeGameState(state)
@@ -102,10 +104,10 @@ function love.update(dt)
         boss_timer = boss_timer + dt
 
         if spawn_timer > 1 then
-            table.insert(enemies, Enemy(1, entities.cactus, 800, 100, 1))
+            table.insert(enemies, Enemy(level, entities.cactus, 800, 100, 1))
             spawn_timer = 0.1
         elseif boss_timer > 5 then
-            table.insert(enemies, Enemy(1, entities.horse, 2400, 300, 10))
+            table.insert(enemies, Enemy(level, entities.horse, 2400, 300, 10))
             boss_timer = 0.1
         end
         -- An enemy will spawn every 2 seconds and a boss will spawn every 10 seconds
@@ -118,8 +120,8 @@ function love.update(dt)
                     if enemy:checkHit(bullet.x, bullet.y) then
                         bullet.hitTarget = true
                         enemy.hp = enemy.hp - 1
-                        player_score = player_score + 1
                         if enemy.hp == 0 then
+                            player_score = player_score + enemy.points
                             table.remove(enemies, index)
                         end
                     end

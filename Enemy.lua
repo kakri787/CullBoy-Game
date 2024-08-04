@@ -25,6 +25,7 @@ function Enemy(level, type, width, height, hp)
         x = _x,
         y = _y,
         hp = hp,
+        points = hp,
         sprite_width = width,
         sprite_height = height,
         quad_width = width/8,
