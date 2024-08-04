@@ -28,14 +28,14 @@ function Bullet(x, y, direction)
         hitTarget = false,
 
         draw = function(self)
-            love.graphics.setColor(1, 1, 1)
+            love.graphics.setColor(0, 0, 0)
             love.graphics.setPointSize(3)
             love.graphics.points(self.x, self.y)
+            love.graphics.setColor(1, 1, 1)
 
             if self.hitTarget == true then
                 love.graphics.draw(explosion, self.x, self.y, 0, 2, 2, 5, 5)
             end
-
         end,
 
         move = function(self)

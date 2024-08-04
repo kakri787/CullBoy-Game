@@ -17,7 +17,7 @@ function Player()
             direction = "right",
             idle = true,
             shooting = false,
-            fireRate = 0.2,
+            fireRate = 0.3,
             bullets = {},
             frame = 1,
             max_frames = 8,
@@ -97,20 +97,22 @@ function Player()
 
             if not love.keyboard.isDown('up', 'down', 'left', 'right') then
                 self.animation.shooting = false
-                self.animation.fireRate = 0.22
+                self.animation.fireRate = 0.31
                 -- Sets idle fireRate value to 0.22 to allow tapping arrow keys to fire a bullet
             end
 
             if self.animation.shooting then
-                if self.animation.fireRate == 0.22 then
+                if self.animation.fireRate == 0.31 then
                     table.insert(self.animation.bullets, bullet(self.x, self.y, self.animation.direction))
+                    audio.bullet_sound:play()
                 end
                 -- When idle default the fireRate value is 0.22 therefore a bullet will be fired immediately when tapping or holding down arrow key
 
                 self.animation.fireRate = self.animation.fireRate + dt
-                if self.animation.fireRate > 0.2 + 12 * dt then
+                if self.animation.fireRate > 0.3 + (18 * dt) then
                     table.insert(self.animation.bullets, bullet(self.x, self.y, self.animation.direction))
-                    self.animation.fireRate = 0.2
+                    audio.bullet_sound:play()
+                    self.animation.fireRate = 0.3
                 end
                 -- When arrow keys are held down bullets will fire every 0.2 seconds which is equivalent to 12 times of dt
                 -- Every frame dt is added to fireRate and once its exceeds the above threshold then the next bullet will be fired
